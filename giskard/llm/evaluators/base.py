@@ -26,9 +26,9 @@ class EvaluationResultExample:
 
     def to_example(self):
         if self.status == TestResultStatus.ERROR:
-            return {"error": self.reason, "sample": self.sample}
+            return {"error": self.reason, "sample": self.sample, "status": self.status.value}
         else:
-            return {"reason": self.reason, "sample": self.sample}
+            return {"reason": self.reason, "sample": self.sample, "status": self.status.value}
 
     def to_dict(self):
         return {"reason": self.reason, "sample": self.sample, "status": self.status}

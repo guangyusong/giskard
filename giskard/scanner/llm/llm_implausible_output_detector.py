@@ -58,7 +58,7 @@ class LLMImplausibleOutputDetector(Detector):
             "llm_sampled_tokens": num_sampled_tokens,
         }
 
-    def run(self, model: BaseModel, dataset: Dataset, features=None) -> Sequence[Issue]:
+    def run(self, model: BaseModel, dataset: Dataset, features=None) -> tuple[Sequence[Issue], list[any]]:
         # Generate inputs
         languages = dataset.extract_languages(columns=model.meta.feature_names)
 
@@ -82,7 +82,10 @@ class LLMImplausibleOutputDetector(Detector):
             ]
         )
 
+        conversations = []
+
         if eval_result.failed:
+            conversations.extend(eval_result.failure_examples)
             return [
                 Issue(
                     model,
@@ -102,9 +105,10 @@ class LLMImplausibleOutputDetector(Detector):
                     taxonomy=["avid-effect:performance:P0204"],
                     detector_name=self.__class__.__name__,
                 )
-            ]
+            ], conversations
 
-        return []
+        conversations.extend(eval_result.success_examples)
+        return [], conversations
 
 
 def _generate_implausible_output_tests(issue: Issue):
